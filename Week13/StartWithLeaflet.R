@@ -147,10 +147,16 @@ saveWidget(AUSmap, "AUSmap.html", selfcontained = TRUE)
 # Task 1: Create a Danish equivalent of AUSmap with Esri layers, 
 # but call it DANmap. You will need it layer as a background for Danish data points.
 
-leaflet() %>%   # assign the base location to an object
-  setView( 10.85089,55.2339084, zoom = 13) %>% 
-  addTiles()
-l_dk
+DANmap <- leaflet() %>%   # assign the base location to an object
+  setView( 10.85089,55.2339084, zoom = 6) %>% 
+  addTiles() %>% 
+  addProviderTiles("Esri.WorldPhysical", group = "Physical") %>% 
+  addProviderTiles("Esri.WorldImagery", group = "Aerial") %>% 
+  addProviderTiles("MtbMap", group = "Geo") %>% 
+  addLayersControl(
+    baseGroups = c("Geo","Aerial","Physical"),
+    options = layersControlOptions(collapsed = T))
+DANmap
 
 ########################################
 ######################################## ADD DATA TO LEAFLET
@@ -181,7 +187,7 @@ library(leaflet)
 gs4_deauth()  # run this line and then rerun the read_sheet() function below
 
 # Read in the Google sheet you've edited
-places <- read_sheet("https://www.google.com/maps/place/Gazzv%C3%A6rket/@55.0451038,9.4208042,555m/data=!3m2!1e3!4b1!4m6!3m5!1s0x47b353d16ac6f81b:0xbd4a18bb1514692!8m2!3d55.0451038!4d9.4233791!16s%2Fg%2F11b6v195fr?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D",
+places <- read_sheet("https://docs.google.com/spreadsheets/d/1PlxsPElZML8LZKyXbqdAYeQCDIvDps2McZx1cTVWSzI/edit?gid=1808791124#gid=1808791124",
                      col_types = "cccnncnc",   # check that you have the right number and type of columns
                      range = "DAM2026")  # select the correct worksheet name
 
@@ -194,7 +200,7 @@ places %>%
 # Question 3: are the Latitude and Longitude columns present? 
 # Do they contain numeric decimal degrees?
 
-
+- Yes 
 
 # If your coordinates look good, see how you can use addMarkers() function to
 # load them in a basic map. Run the lines below and check: are any points missing? Why?
@@ -205,10 +211,14 @@ studentmap<- leaflet() %>%
              popup = paste(places$Description, "<br>", places$Type))
 saveWidget(studentmap, "studentmap.html", selfcontained = T)
 
-DKmap %>% 
+studentmap
+
+DANmap %>% 
   addMarkers(lng = places$Longitude, 
              lat = places$Latitude,
              popup = paste(places$Description, "<br>", places$Type))
+
+DANmap
 # Now that you have learned how to load points from a googlesheet to a basic leaflet map, 
 # apply the know-how to YOUR DANmap object. 
 
@@ -220,6 +230,22 @@ DKmap %>%
 # into your DANmap object (with multiple background layers you created in Task 1).
 
 # Solution
+studentmap<- leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(lng = places$Longitude, 
+             lat = places$Latitude,
+             popup = paste(places$Description, "<br>", places$Type))
+saveWidget(studentmap, "studentmap.html", selfcontained = T)
+
+studentmap
+
+DANmap %>% 
+  addMarkers(lng = places$Longitude, 
+             lat = places$Latitude,
+             popup = paste(places$Description, "<br>", places$Type))
+
+DANmap
+
 
 ######################################## TASK THREE
 
@@ -227,6 +253,15 @@ DKmap %>%
 # Hint: Google "clustering options in Leaflet in R"
 
 # Solution
+DANmap_cluster <- DANmap %>% 
+  addMarkers(
+    lng = places$Longitude,
+    lat = places$Latitude,
+    popup = paste(places$Description, "<br>", places$Type),
+    clusterOptions = markerClusterOptions()
+  )
+
+DANmap_cluster
 
 ######################################## TASK FOUR
 
@@ -234,6 +269,7 @@ DKmap %>%
 # each is good for and what not.
 
 # Your brief answer
+- #Cloustering is good for an overview without clustering is good for details
 
 ######################################## TASK FIVE
 
@@ -242,5 +278,12 @@ DKmap %>%
 # https://r-charts.com/spatial/interactive-maps-leaflet/#popup
 
 # Solution
+  DANmap %>% 
+  addMarkers(lng = places$Longitude, 
+             lat = places$Latitude,
+             popup = paste(places$Placename, "<br>",
+                           places$Type, "<br>",
+                           places$Description),
+             clusterOptions = markerClusterOptions())
 
 ######################################## CONGRATULATIONS - YOU ARE DONE :)
